@@ -1,4 +1,5 @@
 -- ## Tasks
+
 -- 1. Get all customers and their addresses.
 SELECT "customers".first_name, "customers".last_name, "addresses".street, "addresses".city, "addresses".state, "addresses".zip FROM "customers"
 JOIN "addresses" ON "customers".id = "addresses".customer_id;
@@ -50,6 +51,27 @@ WHERE "products".id = 6;
 
 
 -- ## Stretch
+
 -- 9. How much was the total cost for each order?
--- 10. How much has each customer spent in total?≈
+
+SELECT "orders".id, SUM("line_items".quantity * "products".unit_price) AS "line_item_price" FROM "products"
+JOIN "line_items" ON "line_items".product_id = "products".id
+JOIN "orders" ON "orders".id = "line_items".order_id
+GROUP BY "orders".id ORDER BY "orders".id;
+
+-- 10. How much has each customer spent in total?
+SELECT "customers".last_name, "customers".first_name, SUM("line_items".quantity * "products".unit_price) FROM "products"
+JOIN "line_items" ON "products".id = "line_items".product_id
+JOIN "orders" ON "line_items".order_id = "orders".id
+JOIN "addresses" ON "addresses".id = "orders".address_id
+RIGHT JOIN "customers" ON "customers".id = "addresses".customer_id
+GROUP BY "customers".id;
+
+
 -- 11. How much has each customer spent in total? Customers who have spent $0 should still show up in the table. It should say 0, not NULL (research coalesce).
+SELECT "customers".last_name, "customers".first_name, COALESCE(SUM("line_items".quantity * "products".unit_price), 0) FROM "products"
+JOIN "line_items" ON "products".id = "line_items".product_id
+JOIN "orders" ON "line_items".order_id = "orders".id
+JOIN "addresses" ON "addresses".id = "orders".address_id
+RIGHT JOIN "customers" ON "customers".id = "addresses".customer_id
+GROUP BY "customers".id;
